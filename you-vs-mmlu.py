@@ -78,7 +78,6 @@ def __(get_right_answers, get_wrong_answers):
         score = round(raw_score * 100, 2)
     except ZeroDivisionError:
         score = "Answer some questions first!"
-
     return (
         correct_answers,
         incorrect_answers,
@@ -101,10 +100,17 @@ def __(buttons, get_result, mo, next_question):
 @app.cell
 def __(pd):
     columns = ["Question", "A", "B", "C", "D", "Answer"]
-    # load csv with specified headers
-    questions = pd.read_csv("https://raw.githubusercontent.com/mcburton/you-vs-mmlu/main/data.csv", header=None, names=columns)
-    #questions
-    return columns, questions
+
+    try:
+        import pyodide
+        csv = pyodide.http.open_url("https://raw.githubusercontent.com/mcburton/you-vs-mmlu/main/data.csv")
+        questions = pd.read_csv(csv, header=None, names=columns)
+    except ModuleNotFoundError:
+
+        # load csv with specified headers
+        questions = pd.read_csv("https://raw.githubusercontent.com/mcburton/you-vs-mmlu/main/data.csv", header=None, names=columns)
+        #questions
+    return columns, csv, pyodide, questions
 
 
 @app.cell
